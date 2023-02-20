@@ -62,7 +62,7 @@ def create_app(test_config=None):
             sys.exit(1)
 
         processor_config = EmbeddingsProcessorConfig.from_flask_app(app)
-        processor.init(__milvus_collection, consumer, processor_config)
+        emails_processor.init(__milvus_collection, consumer, processor_config)
 
         log.info(f'Service {service_name} successfully started up')
 

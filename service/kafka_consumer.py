@@ -14,6 +14,7 @@ def init(config: KafkaConsumerConfig):
     if __kafka_consumer is None:
         log.info(f'Initializing Kafka consumer with:\n- Bootstrap servers: {config.get_bootstrap_servers}\n- '
                  f'Topic: {config.get_topic_name}')
+        # TODO: Parametrize for security settings
         __kafka_consumer = KafkaConsumer(config.get_topic_name(),
                                          auto_offset_reset=config.get_offset_reset(),
                                          bootstrap_servers=[config.get_bootstrap_servers()],
