@@ -6,12 +6,13 @@ log = logging.getLogger(__name__)
 
 class MinioConfig:
 
-    def __init__(self, host, port, access_key, secret_key):
+    def __init__(self, host, port, access_key, secret_key, bucket_name):
         """Initializer for Minio config"""
         self.__host = host
         self.__port = port
         self.__access_key = access_key
         self.__secret_key = secret_key
+        self.__bucket_name = bucket_name
 
     @classmethod
     def from_flask_app(cls, current_app):
@@ -19,7 +20,7 @@ class MinioConfig:
         log.info("Initializing Minio config from Flask current app")
         config = current_app.config
         return cls(config.get('MINIO_HOST'), config.get('MINIO_PORT'), config.get('MINIO_ACCESS_KEY'),
-                   config.get('MINIO_SECRET_KEY'))
+                   config.get('MINIO_SECRET_KEY'), config.get('MINIO_BUCKET_NAME'))
 
     def get_host(self):
         return self.__host
@@ -32,5 +33,8 @@ class MinioConfig:
 
     def get_secret_key(self):
         return self.__secret_key
+
+    def get_bucket_name(self):
+        return self.__bucket_name
 
 

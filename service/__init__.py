@@ -12,12 +12,15 @@ from pymilvus import Collection
 
 from milvus.milvus_instance import MilvusInstance
 from service import kafka_consumer, emails_processor
-from minio_utils.minio_client import MinioInstance
+from minio_utils.minio_client import MinioClient
+from images_processor import ImagesProcessor
+from minio import Minio
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger(__name__)
 
 __milvus_collection = Collection
+__minio_client = Minio
 
 
 def create_app(test_config=None):
@@ -34,14 +37,13 @@ def create_app(test_config=None):
 
     @app.route('/start')
     def start():
-        global __milvus_collection
+        global __milvus_collection, __minio_client
         service_name = app.config.get("SERVICE_NAME")
         log.info(f'Starting up service {service_name}')
 
         try:
             minio_config = MinioConfig.from_flask_app(app)
-            minio_instance = MinioInstance(minio_config)
-            minio_instance.bootstrap()
+            __minio_client = MinioClient(minio_config)
         except Exception as e:
             log.error(f"Error while bootstrapping Minio: {e}")
             sys.exit(1)
@@ -62,7 +64,9 @@ def create_app(test_config=None):
             sys.exit(1)
 
         processor_config = EmbeddingsProcessorConfig.from_flask_app(app)
-        emails_processor.init(__milvus_collection, consumer, processor_config)
+        # emails_processor.init(__milvus_collection, consumer, processor_config)
+        img_processor = ImagesProcessor(__milvus_collection, __minio_client, consumer, processor_config)
+        img_processor.init()
 
         log.info(f'Service {service_name} successfully started up')
 
